@@ -8,3 +8,6 @@ We are using vertex and fragment shaders to load the graphics in the GPU.
 
 3/7/2016 - Version 0
 Two different color blocks.  One moves and the other remains static.
+
+3/8/2016 - Version 0.01
+Added collision detection using the aabb algorithm
