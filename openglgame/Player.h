@@ -26,8 +26,9 @@ private:
 	GLint uniformColor;							//Uniform color variable
 	float roll, yaw, pitch;						//Stores the x,y, and z rotation
 	GLint colAttrib, posAttrib, texAttrib;		//The color, position and texture attributes
-	GLuint squareVbo, ebo, imageVbo;			//Stores vector objects
-	Shader *shader;								
+	GLuint playerVbo, ebo, imageVbo;			//Stores vector objects
+	Shader *shader;		
+	float size;
 
 /*PUBLIC BLOCK*/
 public:
@@ -94,23 +95,25 @@ public:
 			2,3,0
 		};
 
-		GLfloat squareVert[] = {
+		GLfloat playerVert[] = {
 			-0.5f,  0.5f, 0.0f, 0.0f, 0.0f,			// Top-left
 			 0.5f,  0.5f, 0.0f, 0.0f, 0.0f,			// Top-right
 			 0.5f, -0.5f, 0.0f, 0.0f, 0.0f,			// Bottom-right
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f			// Bottom-left
 		};
 
+		//Calculate size of square
+		size = ((playerVert[1] * 10 * 2) + 1) * scaleX;
 		
 		//upload the vertex data object to the graphcs card
 		//Create a vertex buffer object
 
-		glGenBuffers(1, &squareVbo);					//Generate 1 buffer
-		glBindBuffer(GL_ARRAY_BUFFER, squareVbo);		//To upload actual data, make vbo the active object 
+		glGenBuffers(1, &playerVbo);					//Generate 1 buffer
+		glBindBuffer(GL_ARRAY_BUFFER, playerVbo);		//To upload actual data, make vbo the active object 
 		
 		//Now that vbo is the active array buffer, copy the vertex data into it
 		//The first parameter references the active array buffer
-		glBufferData(GL_ARRAY_BUFFER, sizeof(squareVert), squareVert, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(playerVert), playerVert, GL_STATIC_DRAW);
 
 		/*
 		glGenBuffers(1, &imageVbo);		//Generate 1 buffer
@@ -133,7 +136,7 @@ public:
 		to the screen.
 	************************************************/
 	void Draw() {
-		glBindBuffer(GL_ARRAY_BUFFER, squareVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, playerVbo);
 		glUniform3f(scale, scaleX, scaleY, scaleZ);						//Scales the object 
 		glUniform3f(trans, transX, transY, transZ);						//Translates the object
 		glUniform3f(rot, pitch, yaw, roll);							    //Rotate along the z-axis	(roll)
@@ -220,6 +223,9 @@ public:
 		return transZ;
 	}
 
+	float getSize() {
+		return size;
+	}
 
 	//Deletes all buffer routines
 	void cleanUp() {
@@ -228,7 +234,7 @@ public:
 		glDeleteProgram(shader->fragmentShaderID);
 
 		glDeleteBuffers(1, &ebo);
-		glDeleteBuffers(1, &squareVbo);
+		glDeleteBuffers(1, &playerVbo);
 		glDeleteBuffers(1, &imageVbo);
 	}
 
