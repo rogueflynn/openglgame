@@ -11,3 +11,7 @@ Two different color blocks.  One moves and the other remains static.
 
 3/8/2016 - Version 0.01
 Added collision detection using the aabb algorithm
+
+3/9/2016 - Version 0.01
+Added collision detection with multiple objects. Can collide with enemy and tiles.
+Decoupled much of the programming code.
