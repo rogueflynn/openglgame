@@ -14,16 +14,25 @@
 #include<cstdlib>
 #include "shader.h"
 #include "Enemy.h"
-#include<Windows.h>
 #include<math.h>
+#include "Box.h"
+#include "Key.h"
+#include<vector>
+#include "Camera.h"
+#include "Sprite.h"
+#include "Tiles.h"
 
 //Global variables
 int ms = (1/60) * 1000;  //Calculates 60fps (1 sec/60fps) * (1000ms / 1 sec)
-float hd, vd;
+bool alive = true;
+
 //Objects
-Player player;
-Enemy enemy;
-Shader *shader = 0;		//Use singleton pattern to set shader
+std::vector<Tiles*> tiles;
+std::vector<Enemy*> enemies;		//Player
+std::vector<Player*> player;		//Player vector
+Shader *shader = 0;					//Use singleton pattern to set shader
+Box box;							//Used to check collision detection
+Key keyPress;
 
 //Prototypes
 void render();
@@ -31,13 +40,15 @@ void key(unsigned char, int, int);
 void mouse(int , int , int , int );
 void playerMove();
 void update(int);
-bool checkCollision();
-bool touchTop();
-bool touchLeft();
-bool touchRight();
-bool touchBottom();
+void enemyCollision();
 
 int main(int argc, char** argv) {
+	for(int i=0; i < 10; i++)
+		tiles.push_back(new Tiles());
+	for(int i=0; i < 4; i++)
+		enemies.push_back(new Enemy());
+	player.push_back(new Player());
+
 	//Create window
 	glutInit(&argc, argv);											//Initialize glut
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);		//Specify the modes to render your window
@@ -48,18 +59,38 @@ int main(int argc, char** argv) {
 	//Initialize glew
 	glewExperimental = GL_TRUE;										//Needed to make glew work
 	glewInit();														//Initialize glew for communication with the gpu
-											//Generate the maze using depth first search
-	//Initialize the player
-	player.init();
-	enemy.init();
 
+	//Initialize the player
+	player[0]->init();
+	for(unsigned int i = 0; i < enemies.size(); i++) {
+		enemies[i]->init();
+		enemies[i]->setColor(1.0f, 0.0f, 1.0f);
+	}
+	enemies[0]->translate(-0.8f, 0.8f);
+	enemies[1]->translate(0.8f, 0.8f);
+	enemies[3]->translate(0.8f, -0.8f);
+	enemies[2]->translate(-0.8f, -0.8f);
+
+	for(unsigned int i = 0; i < tiles.size(); i++)
+		tiles[i]->init();
+	tiles[1]->translate(0.0f, 0.5f);
+	tiles[2]->translate(0.0f, -0.5f);
+	tiles[3]->translate(-0.5f, 0.0f);
+	tiles[4]->translate(-0.5f, -0.5f);
+	tiles[5]->translate(-0.5f, 0.5f);
+	tiles[6]->translate(0.5f, 0.5f);
+	tiles[7]->translate(0.5f, -0.5f);
+	tiles[8]->translate(0.5f, -0.8f);
 	//Call back functions
 	glutDisplayFunc(render);										//Draws whatever is passed in to the screen
 	glutKeyboardFunc(key);											//Executes event based on the key pressed
 	glutMouseFunc(mouse);											//Executes event based on mouse button pressed
 	glutMainLoop();													//Main loop of the glut program. Keeps window open
-	player.cleanUp();
-	enemy.cleanUp();
+	if(!player.empty()) 
+		player[0]->cleanUp();
+
+	for(unsigned int i = 0; i < tiles.size(); i++)
+		tiles[i]->cleanUp();
 	return 0;
 }
 
@@ -68,20 +99,13 @@ int main(int argc, char** argv) {
 			update() 
 	All update logic goes in this function.
 	update will keep track of the status and
-	location of the player and enemies.
+	location of the player and tiles.
 *************************************************/
 void update(int data) {
-	//Check for collision
-	if(!checkCollision()) {
-		player.setColor(1.0f, 0.0f, 0.0f);
-		glutPostRedisplay();
-	} else if(checkCollision()) {
-		player.setColor(0.0f, 1.0f, 0.0f);
-		glutPostRedisplay();
-	}
-
-	//Moves the player on the screen
-	playerMove();
+	player[0]->setColor(1.0f, 0.0f,0.0f);
+	enemyCollision();					//Check if the player has collided with an enemy
+	playerMove();						//Move the player
+	glutPostRedisplay();				//Refresh the screen
 }
 
 /**********************************************
@@ -91,39 +115,29 @@ void update(int data) {
 ************************************************/
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
-	glutTimerFunc(ms, update, 1);									//Controls updating
-	player.Draw();
-	enemy.Draw();
+	if(!alive) {
+		player[0]->cleanUp();
+		player.pop_back();
+		alive = true;
+	}
+	if(!player.empty()) {
+		glutTimerFunc(ms, update, 1);									//Controls updating
+		player[0]->Draw();
+	}
+
+	//Draw the enemies 
+	for(unsigned int i = 0; i < enemies.size(); i++){
+		enemies[i]->Draw();	
+	}
+
+	//Draw tiles
+	for(unsigned int i = 0; i < tiles.size(); i++){
+		tiles[i]->Draw();	
+	}
+
 	glutSwapBuffers();												//Swaps the buffers when double buffer is used
 }
 
-
-/****************************************************
-		checkCollision()
-	Uses the axis-aligned algorithm in order to 
-	perform collision detection. 
-*****************************************************/
-bool checkCollision() {
-	return !((player.getX() + player.getSize()/20)<= enemy.getX() - enemy.getSize()/20 ||
-			 player.getX() - player.getSize()/20 >= enemy.getX() + enemy.getSize()/20 ||
-			 player.getY() + player.getSize()/20  <= enemy.getY() - enemy.getSize()/20 ||
-			 player.getY() - player.getSize()/20  >= enemy.getY() + enemy.getSize()/20); 
-}
-
-//Rectangle helper functions
-//Used to determine if the character is colliding with the platform
-bool touchTop() {
-	return (checkCollision() && player.getY() > enemy.getY() && vd > hd);
-}
-bool touchBottom() {
-	return (checkCollision() && player.getY() < enemy.getY() && vd > hd);
-}
-bool touchLeft() {
-	return (checkCollision() && player.getX() < enemy.getX() && hd > vd);
-}
-bool touchRight() {
-	return (checkCollision() && player.getX() > enemy.getX() && hd > vd);
-}
 
 /*********************************************
 	The key function takes in a key and runs
@@ -147,30 +161,50 @@ void key(unsigned char key, int x, int y) {
 **************************************************/
 void playerMove() {
 	//Logic to handle special key presses
-	//Distance between x values |x1 - x2|
-	//Distance between y values |y1 - y2|
-	hd = abs(player.getX() - enemy.getX());			//Gets the horizontal distance
-	vd = abs(player.getY() - enemy.getY());			//Gets the vertical distance
+	for(unsigned int i = 0; i < tiles.size(); i++){
+		if(keyPress.Left()) {
+			if(!(box.touchRight(*player[0],*tiles[i]))) {	
+				player[0]->moveLeft();
+			} else  {
+				std::cout << "Collided with right\n";
+				player[0]->stopMovingLeft(tiles[i]->Right());
+			}
+		} else if(keyPress.Right()) {
+			if(!(box.touchLeft(*player[0],*tiles[i]))) {
+				player[0]->moveRight();
+			} else {
+				std::cout << "Collided with left\n";
+				player[0]->stopMovingRight(tiles[i]->Left());
+			}
+		} else if(keyPress.Up()) {
+			if(!(box.touchBottom(*player[0], *tiles[i]))) {
+				player[0]->moveUp();
+			} else {
+				std::cout << "Collided with bottom\n";
+				player[0]->stopMovingUp(tiles[i]->Bottom());
+			}
+		} else if(keyPress.Down()) {
+			if(!(box.touchTop(*player[0], *tiles[i]))) {
+				player[0]->moveDown();
+			} else {
+				std::cout << "Collided with top\n";
+				player[0]->stopMovingDown(tiles[i]->Top());
+			}
+		}
+	}
+}
 
-	if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
-		if(!(touchRight())) {	
-			player.translate(player.getX()-0.00015f, player.getY());
-			glutPostRedisplay();
-		}
-	} else if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
-		if(!(touchLeft())) {
-			player.translate(player.getX()+0.00015f, player.getY());
-			glutPostRedisplay();
-		}
-	} else if(GetAsyncKeyState(VK_UP) & 0x8000) {
-		if(!(touchBottom())) {
-			player.translate(player.getX(), player.getY()+0.00015f);
-			glutPostRedisplay();
-		}
-	} else if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
-		if(!(touchTop())) {
-			player.translate(player.getX(), player.getY()-0.00015f);
-			glutPostRedisplay();
+/*******************************************************************
+				enemyCollsion()
+		Determines whether or not a player has collided with
+		an enemy.
+********************************************************************/
+void enemyCollision() {
+	int size = enemies.size();
+	for(unsigned int i = 0; i < enemies.size(); i++){
+		if((box.intersect(*player[0], *enemies[i]))){
+			player[0]->setColor(0.0f, 1.0f, 0.0f);	
+			//enemies.erase(enemies.begin() + i);
 		} 
 	}
 }

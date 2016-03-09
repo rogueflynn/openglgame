@@ -11,13 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="Key.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Tiles.h" />
     <ClInclude Include="Vec.h" />
   </ItemGroup>
   <ItemGroup>

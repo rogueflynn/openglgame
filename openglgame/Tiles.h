@@ -10,11 +10,11 @@
 
 #include "Sprite.h"
 
-class Enemy : public Sprite {
+class Tiles : public Sprite {
 
 /*PRIVATE BLOCK*/
 private:
-	GLuint *enemyVbo; 
+	GLuint *tileVbo; 
 	GLuint *ebo;
 	GLuint imageVbo;				//Stores vector objects
 
@@ -23,12 +23,12 @@ public:
 	
 
 	/***********************************************************
-				Enemy constructor
+				Tiles constructor
 			The player constructor sets all of the default 
 			values for the class attributes.
 
 	**************************************************************/
-	Enemy() {
+	Tiles() {
 			//used to store buffers and vertex data
 			//Global variables
 			scale.Set(0.1f, 0.1f, 0.1f);						//Set scale
@@ -41,7 +41,7 @@ public:
 				Initialize the enemy object 
 	************************************************************/
 	void init() {
-		enemyVbo = new GLuint;
+		tileVbo = new GLuint;
 		ebo = new GLuint;
 		//glEnable(GL_TEXTURE_2D);
 		//Create shaders object and load data into it
@@ -57,23 +57,23 @@ public:
 			2,3,0
 		};
 
-		GLfloat enemyVert[] = {
+		GLfloat tilesVert[] = {
 			-0.5f,  0.5f, 0.0f, 0.0f, 0.0f,			// Top-left
 			 0.5f,  0.5f, 0.0f, 0.0f, 0.0f,			// Top-right
 			 0.5f, -0.5f, 0.0f, 0.0f, 0.0f,			// Bottom-right
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f			// Bottom-left
 		};
 
-		size = ((enemyVert[1] * 10 * 2) + 1) * scale.X;
+		size = ((tilesVert[1] * 10 * 2) + 1) * scale.X;
 		//upload the vertex data object to the graphcs card
 		//Create a vertex buffer object
 
-		glGenBuffers(1, enemyVbo);					//Generate 1 buffer
-		glBindBuffer(GL_ARRAY_BUFFER, *enemyVbo);		//To upload actual data, make vbo the active object 
+		glGenBuffers(1, tileVbo);					//Generate 1 buffer
+		glBindBuffer(GL_ARRAY_BUFFER, *tileVbo);		//To upload actual data, make vbo the active object 
 		
 		//Now that vbo is the active array buffer, copy the vertex data into it
 		//The first parameter references the active array buffer
-		glBufferData(GL_ARRAY_BUFFER, sizeof(enemyVert), enemyVert, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(tilesVert), tilesVert, GL_STATIC_DRAW);
 
 		/*
 		glGenBuffers(1, &imageVbo);		//Generate 1 buffer
@@ -96,7 +96,7 @@ public:
 		to the screen.
 	************************************************/
 	 void Draw() {
-		glBindBuffer(GL_ARRAY_BUFFER, *enemyVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, *tileVbo);
 		glUniform3f(Scale, scale.X, scale.Y, scale.Z);									//Scales the object 
 		glUniform3f(Position, position.X, position.Y, position.Z);						//Translates the object
 		glUniform3f(Rotation, rotation.Pitch, rotation.Yaw, rotation.Roll);				//Rotation
@@ -108,7 +108,7 @@ public:
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 	void output() {
-		 std::cout << "Box:  " << *enemyVbo << " is stored at " << enemyVbo<< std::endl;
+		 std::cout << "Box:  " << *tileVbo << " is stored at " << tileVbo<< std::endl;
 	}
 
 
@@ -131,18 +131,9 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	~Enemy() {
-		std::cout << "Destructor called " << std::endl;
-		delete enemyVbo;
+	~Tiles() {
+		delete tileVbo;
 		delete ebo;
-	}
-	//Deletes all buffer routines
-	void cleanUp() {
-	
-		glDeleteBuffers(1, ebo);
-		glDeleteBuffers(1, enemyVbo);
-		glDeleteBuffers(1, &imageVbo);
-		std::cout << "Clean Up called\n";
 	}
 
 /*PROTECTED BLOCK*/

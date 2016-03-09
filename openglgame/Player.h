@@ -7,79 +7,22 @@
 
 **********************************************************************************/
 #pragma once
-#include<glew.h>
-#include<freeglut.h>
-#include<iostream>
-#include<string>
-#include<fstream>
-#include<SOIL.h>
-#include "shader.h"
+#include "Sprite.h"
 
-class Player {
+class Player : public Sprite {
 
 /*PRIVATE BLOCK*/
 private:
-	float scaleX, scaleY, scaleZ;				//Stores all the scale variables
-	float transX, transY, transZ;				//Stores all of the translation variables
-	float r, g, b;								//Stores the rgb values
-	GLint scale, trans, rot;					//Uniform variables passed into the shaders
-	GLint uniformColor;							//Uniform color variable
-	float roll, yaw, pitch;						//Stores the x,y, and z rotation
-	GLint colAttrib, posAttrib, texAttrib;		//The color, position and texture attributes
-	GLuint playerVbo, ebo, imageVbo;			//Stores vector objects
-	Shader *shader;		
-	float size;
-
+	GLuint playerVbo, ebo, imageVbo;			//Stores vector buffer objects
+	
 /*PUBLIC BLOCK*/
 public:
-	
-
-	/***********************************************************
-				Player constructor
-			The player constructor sets all of the default 
-			values for the class attributes.
-
-	**************************************************************/
-	Player() {
-			//used to store buffers and vertex data
-			//Global variables
-			scaleX = 0.1f, scaleY = 0.1f, scaleZ = 0.1f;		//Scale variables
-			transX = 0.0f, transY = 0.0f, transZ = 0.0f;		//Translation variables
-			r = 1.0f, g = 0.0f, b = 0.0f;
-			scale, trans, rot;
-			roll = 0.0f;										//Controls rotation along the z-axis
-			yaw = 0.0f;										//Controls rotation along the y-axis
-			pitch = 0.0f;										//Controls rotation along the x-axis
-			shader = Shader::getInstance();
-	}
-	/************************************************************
-					Player Destructor
-			Destroyer all dynamic memory instatiated 
-			int this class
-	*************************************************************/
 	~Player() {
-		delete shader;
+		std::cout << "Destructor called.\n";
 	}
-
-	
-	/*************************************************************
-						createShaders()
-				Uses the readShaderCode function in order to 
-				load in the shaders and then instatiate and link
-				them to the min program.
-	**************************************************************/
-	void setShader() {
-		shader->createShaders();
-		colAttrib		=	glGetAttribLocation(shader->shaderProgram, "color");		
-		posAttrib		=	glGetAttribLocation(shader->shaderProgram, "position");
-		//texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-		scale			=	glGetUniformLocation(shader->shaderProgram, "s");
-		trans			=	glGetUniformLocation(shader->shaderProgram, "t");
-		rot				=	glGetUniformLocation(shader->shaderProgram, "r");
-		uniformColor	=	glGetUniformLocation(shader->shaderProgram, "ucolor");
-	}
-
-
+	/**************************************************
+					initialize the player
+	***************************************************/
 	void init() {
 		//glEnable(GL_TEXTURE_2D);
 		//Create shaders object and load data into it
@@ -103,7 +46,7 @@ public:
 		};
 
 		//Calculate size of square
-		size = ((playerVert[1] * 10 * 2) + 1) * scaleX;
+		size = ((playerVert[1] * 10 * 2) + 1) * scale.X;
 		
 		//upload the vertex data object to the graphcs card
 		//Create a vertex buffer object
@@ -137,29 +80,28 @@ public:
 	************************************************/
 	void Draw() {
 		glBindBuffer(GL_ARRAY_BUFFER, playerVbo);
-		glUniform3f(scale, scaleX, scaleY, scaleZ);						//Scales the object 
-		glUniform3f(trans, transX, transY, transZ);						//Translates the object
-		glUniform3f(rot, pitch, yaw, roll);							    //Rotate along the z-axis	(roll)
-		glUniform3f(uniformColor, r, g, b);							    //Rotate along the z-axis	(roll)
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0); //5*sizeof(float) represents 5 floatig point # in array
+		glUniform3f(Scale, scale.X, scale.Y, scale.Z);									//Scales the object 
+		glUniform3f(Position, position.X, position.Y, position.Z);						//Translates the object
+		glUniform3f(Rotation, rotation.Pitch, rotation.Yaw, rotation.Roll);				//Rotation
+		glUniform3f(uniformColor, color.R, color.G, color.B);							//Sets uniform color
+		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);	//5*sizeof(float) represents 5 floatig point # in array
 		glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(2*sizeof(float))); 
 		//glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
 		 // Draw a rectangle from the 2 triangles using 6 indices
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-
-
+	
 	/**********************************************
-		The drawName function is used to draw my name 
+		The drawImage function is used to draw an image 
 		to the screen.
 	************************************************/
-	void drawName() {
+	void drawImage() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glUniform3f(scale, 0.5f, 0.5f, scaleZ);						//Scales the object 
-		glUniform3f(trans, -0.7f, 0.85f, transZ);						//Translates the object
-		glUniform3f(rot, pitch, yaw, roll);							    //Rotate along the z-axis	(roll)
-		glUniform3f(uniformColor, 1, 1, 1);							    //Rotate along the z-axis	(roll)
+		glUniform3f(Scale, 0.5f, 0.5f, scale.Z);										//Scales the object 
+		glUniform3f(Position, -0.7f, 0.85f, position.Z);								//Translates the object
+		glUniform3f(Rotation, rotation.Pitch, rotation.Yaw, rotation.Roll);				//Rotation 
+		glUniform3f(uniformColor, 1, 1, 1);												//Color
 		glBindBuffer(GL_ARRAY_BUFFER, imageVbo);
 		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0); //5*sizeof(float) represents 5 floatig point # in array
 		glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(2*sizeof(float))); 
@@ -167,78 +109,7 @@ public:
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDisable(GL_BLEND);
 	}
-
-
-	/*Sets the color of an object*/
-	void setColor(float red, float green, float blue) {
-		r = red;
-		g = green;
-		b = blue;
-	}
-
-	/*MATRIX OPERTATIONS*/
-
-	//Performs translation on the x and y access
-	void translate(float x, float y) {
-		transX = x;
-		transY = y;
-	}
-
-	//Controls the scale 
-	void Scale(float x, float y) {
-		scaleX = x;
-		scaleY = y;
-	}
-
-	//Controls rotation along the x-axis
-	void rotateX(float x) {
-		pitch = x;
-	}
-
-	//Controls rotation along the y-axis
-	void rotateY(float y) {
-		yaw = y;
-	}
-
-	//Controls rotation along the z-axis
-	void rotateZ(float z) {
-		roll = z;
-	}
-
-
-	/*GETTERS*/
-
-	//Returns the current X position
-	float getX() {
-		return transX;
-	}
-
-	//Returns the current Y position
-	float getY() {
-		return transY;
-	}
-
-	//Returns the current Z position
-	float getZ() {
-		return transZ;
-	}
-
-	float getSize() {
-		return size;
-	}
-
-	//Deletes all buffer routines
-	void cleanUp() {
-		glDeleteProgram(shader->shaderProgram);
-		glDeleteProgram(shader->vertexShaderID);
-		glDeleteProgram(shader->fragmentShaderID);
-
-		glDeleteBuffers(1, &ebo);
-		glDeleteBuffers(1, &playerVbo);
-		glDeleteBuffers(1, &imageVbo);
-	}
-
-/*PROTECTED BLOCK*/
+/*Protected Block*/
 protected:
 
 };
