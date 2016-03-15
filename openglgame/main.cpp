@@ -205,6 +205,8 @@ void enemyCollision() {
 		if((box.intersect(*player[0], *enemies[i]))){
 			player[0]->setColor(0.0f, 1.0f, 0.0f);	
 			//enemies.erase(enemies.begin() + i);
+			alive = false;
+			break;
 		} 
 	}
 }
