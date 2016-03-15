@@ -8,12 +8,12 @@
 			to inherit from this class.
 **********************************************************************************/
 #pragma once
-#include<glew.h>
-#include<freeglut.h>
+#include<GL\glew.h>
+#include<GL\freeglut.h>
 #include<iostream>
 #include<string>
 #include<fstream>
-#include<SOIL.h>
+#include<GL\SOIL.h> 
 #include "shader.h"
 #include "Vec.h"
 

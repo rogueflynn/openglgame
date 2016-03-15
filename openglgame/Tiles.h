@@ -1,7 +1,7 @@
 /*********************************************************************************
-		Player class:
+		??? class:
 		Author: Victor Gonzalez
-		Purpose:
+		??? Purpose:
 			Serves as the template for all player objects.  Stores all attributes
 			for the player and handles the current status of the player.
 

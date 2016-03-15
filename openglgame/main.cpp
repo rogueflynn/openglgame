@@ -4,8 +4,8 @@
 		Main entry point for the game engine. 
 
 ************************************************************/
-#include<glew.h>
-#include<freeglut.h>
+#include<GL\glew.h>
+#include<GL\freeglut.h>
 #include<iostream>
 #include<stdlib.h>
 #include "Player.h"
@@ -21,6 +21,7 @@
 #include "Camera.h"
 #include "Sprite.h"
 #include "Tiles.h"
+#include <GL\SOIL.h>
 
 //Global variables
 int ms = (1/60) * 1000;  //Calculates 60fps (1 sec/60fps) * (1000ms / 1 sec)
@@ -43,10 +44,13 @@ void update(int);
 void enemyCollision();
 
 int main(int argc, char** argv) {
+
 	for(int i=0; i < 10; i++)
 		tiles.push_back(new Tiles());
+
 	for(int i=0; i < 4; i++)
 		enemies.push_back(new Enemy());
+
 	player.push_back(new Player());
 
 	//Create window

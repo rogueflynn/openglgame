@@ -12,9 +12,9 @@
 
 **************************************************************************************/
 #pragma once
-#include<glew.h>
+#include<GL\glew.h>
+#include<GL\freeglut.h>
 #include<iostream>
-#include<freeglut.h>
 #include<string>
 #include<fstream>
 

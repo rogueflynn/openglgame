@@ -1,9 +1,9 @@
 /*********************************************************************************
-		Player class:
+		Enemy class:
 		Author: Victor Gonzalez
 		Purpose:
-			Serves as the template for all player objects.  Stores all attributes
-			for the player and handles the current status of the player.
+			Serves as the template for all enemy objects.  Stores all attributes
+			for the enemy and handles the current status of the enemy.
 
 **********************************************************************************/
 #pragma once
@@ -20,7 +20,6 @@ private:
 
 /*PUBLIC BLOCK*/
 public:
-	
 
 	/***********************************************************
 				Enemy constructor
