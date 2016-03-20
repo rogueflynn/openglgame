@@ -15,3 +15,6 @@ Added collision detection using the aabb algorithm
 3/9/2016 - Version 0.015
 Added collision detection with multiple objects. Can collide with enemy and tiles.
 Decoupled much of the programming code.
+
+3/20/2016 - Version 0.02
+Took out shader code and immediate mode code.  Added in ship graphic.
