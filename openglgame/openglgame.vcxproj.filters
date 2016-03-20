@@ -48,14 +48,9 @@
     <ClInclude Include="Tiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="fragmentsource.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="vertexsource.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ClInclude Include="Model_OBJ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,5 +61,13 @@
     <ResourceCompile Include="openglgame.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fragmentsource.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\vertexsource.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

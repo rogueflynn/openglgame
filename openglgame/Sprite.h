@@ -16,16 +16,14 @@
 #include<SOIL.h>
 #include "shader.h"
 #include "Vec.h"
+#include "Point.h"
 
 class Sprite {
 
 /*PRIVATE BLOCK*/
 protected:
 	Vec scale, position, color,rotation;		//Store scale, position, color and rotation values
-	GLint Scale, Position, Rotation;			//Uniform variables passed into the shaders
-	GLint uniformColor;							//Uniform color variable
-	GLint colAttrib, posAttrib, texAttrib;		//The color, position and texture attributes
-	GLuint playerVbo, ebo, imageVbo;			//Stores vector buffer objects
+	Point point;
 	Shader *shader;								//Points to the single instance of the shader object
 	float size;									//stores the size of the scale
 	float speed;								//Stores the speed of the player
@@ -36,7 +34,6 @@ public:
 	//Have to override
 	virtual void Draw(){}
 	virtual void init(){}
-	virtual void drawImage(){}
 
 	/***********************************************************
 				Spirte constructor
@@ -46,11 +43,11 @@ public:
 	**************************************************************/
 	Sprite() {
 			//used to store buffers and vertex data
-			scale.Set(0.1f, 0.1f, 0.1f);						//Set scale
+			scale.Set(1.0f, 1.0f, 1.0f);						//Set scale
 			color.setColor(1.0f, 0.0f, 0.0f);					//sets the color
-			speed = 0.00005f;									//Sets the speed
+			speed = 0.05f;									//Sets the speed
 			offset = 0.05f;
-			shader = Shader::getInstance();
+			point.X = point.Y = 0.3;
 	}
 	/************************************************************
 					Sprite Destructor
@@ -58,26 +55,30 @@ public:
 			int this class
 	*************************************************************/
 	~Sprite() {
-		delete shader;
+//		delete shader;
 	}
 
-	/*************************************************************
-						createShaders()
-				Uses the readShaderCode function in order to 
-				load in the shaders and then instatiate and link
-				them to the min program.
-	**************************************************************/
-	void setShader() {
-		shader->createShaders();
-		colAttrib		=	glGetAttribLocation(shader->shaderProgram, "color");		
-		posAttrib		=	glGetAttribLocation(shader->shaderProgram, "position");
-		//texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-		Scale			=	glGetUniformLocation(shader->shaderProgram, "s");
-		Position		=	glGetUniformLocation(shader->shaderProgram, "t");
-		Rotation		=	glGetUniformLocation(shader->shaderProgram, "r");
-		uniformColor	=	glGetUniformLocation(shader->shaderProgram, "ucolor");
-	}
 
+
+	 //Used to load the image into a texture
+	GLuint loadAndBufferImage(const char* imageName) {
+		int w, h;		//Width and height
+		/* load an image file directly as a new OpenGL texture */
+		GLuint textureId;
+		unsigned char* image = SOIL_load_image(imageName, &w, &h, 0, SOIL_LOAD_RGBA);
+		glGenTextures(1, &textureId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		SOIL_free_image_data(image);
+
+		return textureId;
+	}
 	
 
 	/*BOX EDGE BLOCK*/
@@ -205,17 +206,10 @@ public:
 		return size;
 	}
 
-	//Deletes all buffer routines
-	void cleanUp() {
-		glDeleteProgram(shader->shaderProgram);
-		glDeleteProgram(shader->vertexShaderID);
-		glDeleteProgram(shader->fragmentShaderID);
-
-		glDeleteBuffers(1, &ebo);
-		glDeleteBuffers(1, &playerVbo);
-		glDeleteBuffers(1, &imageVbo);
-		std::cout << "Clean Up called\n";
+	void setPoint(float X, float Y, float Z) {
+		point.setPoint(X, Y, Z);
 	}
+
 
 /*PROTECTED BLOCK*/
 private:

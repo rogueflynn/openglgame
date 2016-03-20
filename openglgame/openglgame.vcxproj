@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Model_OBJ.h" />
     <ClInclude Include="Box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
@@ -24,14 +25,14 @@
     <ClInclude Include="Vec.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragmentsource.glsl" />
-    <None Include="vertexsource.glsl" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="openglgame.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fragmentsource.glsl" />
+    <None Include="shaders\vertexsource.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A4DDEA50-1B93-456F-8C1E-2325DE5F28B2}</ProjectGuid>
@@ -68,6 +69,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\openglgame\openglgame\soil\Simple OpenGL Image Library\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

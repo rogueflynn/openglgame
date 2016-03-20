@@ -59,4 +59,10 @@ public:
 		this->Y = right.Y;
 		this->Z = right.Z;
 	}
+
+	void setPoint(float X, float Y, float Z) {
+		this->X = X;
+		this->Y = Y;
+		this->Z = Z;
+	}
 };
