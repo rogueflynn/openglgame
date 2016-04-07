@@ -8,15 +8,18 @@
 **********************************************************************************/
 #pragma once
 #include "Sprite.h"
-
+#include "Bullet.h"
+#include "Box.h"
 class Player : public Sprite {
 
 /*PRIVATE BLOCK*/
 private:
-	//GLuint playerVbo, ebo, imageVbo;			//Stores vector buffer objects
-	
+	Box box;
+
 /*PUBLIC BLOCK*/
 public:
+	std::vector<Bullet> bullets;
+
 	~Player() {
 		std::cout << "Destructor called.\n";
 	}
@@ -25,11 +28,12 @@ public:
 	***************************************************/
 	void init() {
 		GLuint textureBufferID = loadAndBufferImage("hitbox.png");
-		setPoint(0.25f, 0.25f, -1.1f);
+		setPoint(0.25f, 0.25f, 0.0f);
 		
 		//Calculate size of square
 		size = ((point.X * 10 * 2) + 1) * scale.X;
-		position.Set(-0.74, 0.3f,0.0f);
+		position.Set(0.0f, -3.5f,0.0f);
+		model.Load("ship.obj");
 	}
 
 	/**********************************************
@@ -37,6 +41,7 @@ public:
 		to the screen.
 	************************************************/
 	void Draw() {
+		model.drawObject();
 		glPushMatrix();
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_BLEND);
@@ -56,7 +61,57 @@ public:
 			glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
 
+		//Draw The bullets
+		for(unsigned int i = 0; i < bullets.size(); i++) {
+			bullets[i].Draw();
+		}
+
+		updateBullets();
 	}
+
+//This method instatiates a new bullet and adds
+//it to the vector. The max that the vector can hava
+//is 5.
+void shoot() {
+	Bullet bullet;					//Instantiate a new bullet
+	bullet.isVisible = true;		//Set the bullet to be seen
+	bullet.position.X = position.X;				//Set the position
+	bullet.position.Y = position.Y+0.7f;
+
+	if(bullets.size() < 5)			//If there is not 5 bullets on the screen, the player can shoot.
+		bullets.push_back(bullet);	//Add a bullet to the vector
+
+}
+
+//This function is used to move the bullets across the screen
+//If the bullet is outside the boundary of the game world
+//the bullet will be erased from the vector.
+void updateBullets() {
+		//Moves the bullet across the screen
+		for(unsigned int i = 0; i < bullets.size(); i++) {
+			bullets[i].position.Y += 0.01f;	//Increment each bullet
+			if(bullets[i].position.Y > 4)		//If the bullet is outside the boundary
+				bullets[i].isVisible = false;		//Set to false
+			glutPostRedisplay();
+		}
+		
+		//If the bullet is not visible than erase from the vector 
+		//Might be able to refactor
+		for(unsigned int i = 0; i < bullets.size(); i++) {
+			if(!(bullets[i].isVisible)) {				//If the bullet is not visible
+				bullets.erase(bullets.begin() + i);		//Erase the bullet
+			}
+		}
+}		
+
+//Checks to see if the bullet has collided with an enemy.
+bool bulletCollision(Sprite &enemy) {
+	for(unsigned int i = 0; i < bullets.size(); i++) {
+		if(box.bulletIntersect(bullets[i], enemy))
+			return true;
+	}	
+	return false;
+}
 
 /*Protected Block*/
 protected:

@@ -17,6 +17,7 @@
 #include "shader.h"
 #include "Vec.h"
 #include "Point.h"
+#include "Model_OBJ.h"
 
 class Sprite {
 
@@ -28,6 +29,7 @@ protected:
 	float size;									//stores the size of the scale
 	float speed;								//Stores the speed of the player
 	float offset;
+	Model_OBJ model;
 /*PUBLIC BLOCK*/
 public:
 	/*VIRTUAL METHODS*/
@@ -45,9 +47,9 @@ public:
 			//used to store buffers and vertex data
 			scale.Set(1.0f, 1.0f, 1.0f);						//Set scale
 			color.setColor(1.0f, 0.0f, 0.0f);					//sets the color
-			speed = 0.05f;									//Sets the speed
+			speed = 0.005f;									//Sets the speed
 			offset = 0.05f;
-			point.X = point.Y = 0.3;
+			point.X = point.Y = 0.3f;
 	}
 	/************************************************************
 					Sprite Destructor
@@ -106,21 +108,25 @@ public:
 	//Move right
 	void moveRight() {
 		position.X += speed;
+		model.posX += speed;
 	}
 
 	//Move left
 	void moveLeft() {
 		position.X -= speed;
+		model.posX -= speed;
 	}
 
 	//Move up
 	void moveUp() {
 		position.Y += speed;
+		model.posY += speed;
 	}
 
 	//Move down
 	void moveDown() {
 		position.Y -= speed;
+		model.posY -= speed;
 	}
 
 	/*STOP MOVEMENT BLOCK*/

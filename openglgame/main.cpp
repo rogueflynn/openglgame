@@ -21,7 +21,6 @@
 #include "Camera.h"
 #include "Sprite.h"
 #include "Tiles.h"
-#include "Model_OBJ.h"
 
 /************************************************************************
   Window
@@ -123,8 +122,8 @@ int main(int argc, char** argv) {
 		enemies[i]->init();
 		enemies[i]->setColor(1.0f, 0.0f, 1.0f);
 	}
-	enemies[0]->translate(-5.5f, 4.0f);
-	enemies[1]->translate(5.5f, 4.0f);
+	enemies[0]->translate(-1.5f, 2.0f);
+	enemies[1]->translate(1.5f, 2.0f);
 	enemies[3]->translate(5.5f, -2.0f);
 	enemies[2]->translate(-5.5f, -2.0f);
 
@@ -135,9 +134,6 @@ int main(int argc, char** argv) {
 	glutMouseFunc(mouse);											//Executes event based on mouse button pressed
 
 	initialize();
-	model.Load("ship.obj");
-	model.Position(30.6f,-320.0f,-200.0f);
-	player[0]->translate(player[0]->getX(), -3.75);
 	glutMainLoop();													//Main loop of the glut program. Keeps window open
 
 	return 0;
@@ -165,7 +161,7 @@ void update(int data) {
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
 	glLoadIdentity();
-	gluLookAt( 0,1,5, 0,0,-1, 0,1,0);
+	gluLookAt( 0,1,4, 0,0,0, 0,1,0);
 	//model.Rotation(rotX, rotY, rotZ);
 	model.drawObject();
 	if(!alive) {
@@ -182,6 +178,7 @@ void render() {
 	for(unsigned int i = 0; i < enemies.size(); i++){
 		enemies[i]->Draw();	
 	}
+
 
 	glutSwapBuffers();												//Swaps the buffers when double buffer is used
 }
@@ -211,16 +208,14 @@ void playerMove() {
 	//Logic to handle special key presses
 	if(keyPress.Left()) {
 			player[0]->moveLeft();
-			model.posX -= 2.0f;
 	} else if(keyPress.Right()) {
 			player[0]->moveRight();
-			model.posX += 2.0f;
 	} else if(keyPress.Up()) {
 			player[0]->moveUp();
-			model.posY += 2.1f;
 	} else if(keyPress.Down()) {
 			player[0]->moveDown();
-			model.posY -= 2.1f;
+	} else if(keyPress.Space()) {
+		player[0]->shoot();
 	}
 }
 
@@ -236,6 +231,10 @@ void enemyCollision() {
 			enemies[i]->setColor(0.0f, 1.0f, 0.0f);	
 			//enemies.erase(enemies.begin() + i);
 		} 
+		if(player[0]->bulletCollision(*enemies[i])) {
+			//enemies[i]->setColor(0.0f, 1.0f, 0.0f);	
+			enemies.erase(enemies.begin() + i);
+		}
 	}
 }
 

@@ -39,6 +39,13 @@ public:
 			return true;
 		else 
 			return false;
-	}	
+	}
+	bool Space() {
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+			return true;
+		else 
+			return false;
+	}
+
 private:
 };

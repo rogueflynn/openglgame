@@ -63,12 +63,13 @@ class Model_OBJ
  
 Model_OBJ::Model_OBJ()
 {
-	posX = posY = posZ = 0.0f;
+	posX = posZ = 0.0f;
+	posY = -4.0f;
 	zoomX = zoomY = zoomZ = 1.0f;
 	//rotX = rotY = rotZ = 0.0f;
-	rotX =83.7f,rotY=-1.1f, rotZ= -7.3f;
+	//rotX =83.7f,rotY=-1.1f, rotZ= -7.3f;
 	//posX = -60.0f, posY = -300.0f, posZ = 200.0f;
-
+	rotX =0.0f,rotY=-0.0f, rotZ=0.0f;
 	this->TotalConnectedTriangles = 0; 
 	this->TotalConnectedPoints = 0;
 }
@@ -226,7 +227,7 @@ void Model_OBJ::drawObject() {
 	glPushMatrix();
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glTranslatef(posX, posY, posZ);
-		glScalef(zoomX, zoomY, zoomZ);
+		//glScalef(zoomX, zoomY, zoomZ);
 		glRotatef(rotX,1.0f,0.0f,0.0f);
 		glRotatef(rotY,0.0f,1.0f,0.0f);
 		glRotatef(rotZ,0.0f,0.0f,1.0f);

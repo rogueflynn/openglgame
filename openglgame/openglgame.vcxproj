@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="GameController.h" />
     <ClInclude Include="Model_OBJ.h" />
     <ClInclude Include="Box.h" />
     <ClInclude Include="Camera.h" />

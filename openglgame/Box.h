@@ -9,6 +9,7 @@
 **********************************************************************************/
 #pragma once
 #include "Sprite.h"
+#include "Bullet.h"
 
 class Box {
 private:
@@ -32,6 +33,14 @@ public:
 		and so forth.
 	*****************************************************/
 	bool intersect(Sprite &boxOne, Sprite &boxTwo) {
+		return !(boxOne.Right() <= boxTwo.Left()  ||
+				 boxOne.Left() >= boxTwo.Right()  ||
+				 boxOne.Top()  <= boxTwo.Bottom() ||
+				 boxOne.Bottom() >= boxTwo.Top()); 
+	}
+
+	//Checks enemy intersection with bullet
+	bool bulletIntersect(Bullet &boxOne, Sprite &boxTwo) {
 		return !(boxOne.Right() <= boxTwo.Left()  ||
 				 boxOne.Left() >= boxTwo.Right()  ||
 				 boxOne.Top()  <= boxTwo.Bottom() ||

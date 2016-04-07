@@ -26,7 +26,7 @@ public:
 	void init() {
 		//Used to make the hitbox transparent
 		GLuint textureBufferID = loadAndBufferImage("hitbox.png");
-		setPoint(0.5f, 0.5f, -1.0f);
+		setPoint(0.5f, 0.5f, 0.0f);
 		
 		//Calculate size of square
 		size = ((point.X * 10 * 2) + 1) * scale.X;
