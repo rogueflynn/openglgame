@@ -21,11 +21,10 @@ public:
 	Bullet() {
 		isVisible = false;	//Set the bullet to not be seen
 		position.Set(0.0f, 0.0f, 0.0f);
-		point.setPoint(0.05f, 0.05f, 0.0f);
+		point.setPoint(0.10f, 0.10f, 0.0f);
 	} 
 
 	//Load
-
 	void Draw() {
 		if(isVisible) {
 			glPushMatrix();

@@ -25,11 +25,11 @@ class Sprite {
 protected:
 	Vec scale, position, color,rotation;		//Store scale, position, color and rotation values
 	Point point;
-	Shader *shader;								//Points to the single instance of the shader object
 	float size;									//stores the size of the scale
 	float speed;								//Stores the speed of the player
 	float offset;
 	Model_OBJ model;
+
 /*PUBLIC BLOCK*/
 public:
 	/*VIRTUAL METHODS*/
@@ -47,7 +47,7 @@ public:
 			//used to store buffers and vertex data
 			scale.Set(1.0f, 1.0f, 1.0f);						//Set scale
 			color.setColor(1.0f, 0.0f, 0.0f);					//sets the color
-			speed = 0.005f;									//Sets the speed
+			speed = 0.01f;									//Sets the speed
 			offset = 0.05f;
 			point.X = point.Y = 0.3f;
 	}
@@ -57,9 +57,7 @@ public:
 			int this class
 	*************************************************************/
 	~Sprite() {
-//		delete shader;
 	}
-
 
 
 	 //Used to load the image into a texture
@@ -106,27 +104,27 @@ public:
 			RIGHT, LEFT, UP, and DOWN
 	************************************************/
 	//Move right
-	void moveRight() {
-		position.X += speed;
-		model.posX += speed;
+	void moveRight(float deltaTime) {
+		position.X +=  (speed * (float) deltaTime);
+		model.posX +=  (speed * (float) deltaTime);
 	}
 
 	//Move left
-	void moveLeft() {
-		position.X -= speed;
-		model.posX -= speed;
+	void moveLeft(float deltaTime) {
+		position.X -= speed * (float) deltaTime;
+		model.posX -= speed * (float) deltaTime;
 	}
 
 	//Move up
-	void moveUp() {
-		position.Y += speed;
-		model.posY += speed;
+	void moveUp(float deltaTime) {
+		position.Y += speed * (float) deltaTime;
+		model.posY += speed * (float) deltaTime;
 	}
 
 	//Move down
-	void moveDown() {
-		position.Y -= speed;
-		model.posY -= speed;
+	void moveDown(float deltaTime) {
+		position.Y -= speed * (float) deltaTime;
+		model.posY -= speed * (float) deltaTime;;
 	}
 
 	/*STOP MOVEMENT BLOCK*/
@@ -134,21 +132,25 @@ public:
 	//Stop moving left
 	void stopMovingLeft(float loc) {
 		position.X = loc+offset;
+		model.posX = loc+offset;
 	}
 
 	//Stop moving right 
 	void stopMovingRight(float loc) {
 		position.X = loc-offset;
+		model.posX = loc-offset;
 	}
 
 	//Stop moving up 
 	void stopMovingUp(float loc) {
 		position.Y = loc-offset;
+		model.posY = loc-offset - 0.5f;
 	}
 
 	//Stop moving down 
 	void stopMovingDown(float loc) {
 		position.Y = loc+offset;
+		model.posY = loc+offset - 0.5f;
 	}
 
 	//Speeds the speed the player moves

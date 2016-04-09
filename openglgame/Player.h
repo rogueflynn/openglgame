@@ -15,7 +15,7 @@ class Player : public Sprite {
 /*PRIVATE BLOCK*/
 private:
 	Box box;
-
+	GLuint textureBufferID;
 /*PUBLIC BLOCK*/
 public:
 	std::vector<Bullet> bullets;
@@ -27,7 +27,7 @@ public:
 					initialize the player
 	***************************************************/
 	void init() {
-		GLuint textureBufferID = loadAndBufferImage("hitbox.png");
+		textureBufferID = loadAndBufferImage("hitbox.png");
 		setPoint(0.25f, 0.25f, 0.0f);
 		
 		//Calculate size of square
@@ -43,6 +43,7 @@ public:
 	void Draw() {
 		model.drawObject();
 		glPushMatrix();
+			glBindTexture(GL_TEXTURE_2D, textureBufferID);
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -89,7 +90,7 @@ void shoot() {
 void updateBullets() {
 		//Moves the bullet across the screen
 		for(unsigned int i = 0; i < bullets.size(); i++) {
-			bullets[i].position.Y += 0.01f;	//Increment each bullet
+			bullets[i].position.Y += 0.04f;	//Increment each bullet
 			if(bullets[i].position.Y > 4)		//If the bullet is outside the boundary
 				bullets[i].isVisible = false;		//Set to false
 			glutPostRedisplay();
@@ -102,16 +103,20 @@ void updateBullets() {
 				bullets.erase(bullets.begin() + i);		//Erase the bullet
 			}
 		}
+
 }		
 
 //Checks to see if the bullet has collided with an enemy.
 bool bulletCollision(Sprite &enemy) {
 	for(unsigned int i = 0; i < bullets.size(); i++) {
-		if(box.bulletIntersect(bullets[i], enemy))
+		if(box.bulletIntersect(bullets[i], enemy)) {
 			return true;
+		}
 	}	
 	return false;
 }
+
+
 
 /*Protected Block*/
 protected:
