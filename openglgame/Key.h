@@ -6,7 +6,7 @@
 		loosely decoupled software
 
 ************************************************************/
-#include<Windows.h>
+#include <Windows.h>
 #pragma once
 
 class Key {

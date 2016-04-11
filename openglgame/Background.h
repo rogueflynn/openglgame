@@ -4,9 +4,9 @@
 ***************************************************************************/
 
 #pragma once
-#include<glew.h>
-#include<freeglut.h>
-#include<SOIL.h>
+#include<gl/glew.h>
+#include<gl/freeglut.h>
+#include<gl/SOIL.h>
 #include<iostream>
 
 class Background {

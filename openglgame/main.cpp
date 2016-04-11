@@ -4,8 +4,8 @@
 		Main entry point for the game engine. 
 
 ************************************************************/
-#include<glew.h>
-#include<freeglut.h>
+#include<gl/glew.h>
+#include<gl/freeglut.h>
 #include<iostream>
 #include<stdlib.h>
 #include "Player.h"

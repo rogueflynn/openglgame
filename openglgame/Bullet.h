@@ -5,8 +5,8 @@
 *******************************************************/
 
 #pragma once 
-#include<glew.h>
-#include<freeglut.h>
+#include<gl/glew.h>
+#include<gl/freeglut.h>
 #include "Point.h"
 #include "Vec.h"
 class Bullet {
