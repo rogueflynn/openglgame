@@ -2,18 +2,18 @@
 		Sprite class:
 		Author: Victor Gonzalez
 		Purpose:
-			Serves as the base class for all sprite bjects.  Stores all attributes
+			Serves as the base class for all sprite objects.  Stores all attributes
 			for the sprite and handles the current status of the sprite. There are
 			virtual functions that have to be overriden in order for another class
 			to inherit from this class.
 **********************************************************************************/
 #pragma once
-#include<gl/glew.h>
-#include<gl/freeglut.h>
-#include<iostream>
-#include<string>
-#include<fstream>
-#include<gl/SOIL.h>
+#include <gl/glew.h>
+#include <gl/freeglut.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <gl/SOIL.h>
 #include "shader.h"
 #include "Vec.h"
 #include "Point.h"

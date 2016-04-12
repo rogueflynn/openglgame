@@ -4,23 +4,23 @@
 		Main entry point for the game engine. 
 
 ************************************************************/
-#include<gl/glew.h>
-#include<gl/freeglut.h>
-#include<iostream>
-#include<stdlib.h>
+#include <gl/glew.h>
+#include <gl/freeglut.h>
+#include <iostream>
+#include <stdlib.h>
 #include "Player.h"
 #include "shader.h"
 #include "Enemy.h"
-#include<math.h>
+#include <math.h>
 #include "Box.h"
 #include "Key.h"
-#include<vector>
+#include <vector>
 #include "Camera.h"
 #include "Sprite.h"
 #include "Model_OBJ.h"
-#include<ctime>
-#include<cstdlib>
-#include"Background.h"
+#include <ctime>
+#include <cstdlib>
+#include "Background.h"
 
 /************************************************************************
   Window
@@ -69,6 +69,7 @@ void playerMove(float &);
 void update(int data);
 void enemyCollision();
 void initialize();
+
 void deleteEnemies(int &index) {
 		delete enemies[index];
 		enemies.erase(enemies.begin() + index);
@@ -112,6 +113,10 @@ void enemySpawn() {
 	}
 }
 
+
+/**********************************************************
+ MAIN
+**********************************************************/
 int main(int argc, char** argv) {
 	srand(time(NULL));
 	// set window values
