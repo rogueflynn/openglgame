@@ -29,6 +29,7 @@ protected:
 	float speed;								//Stores the speed of the player
 	float offset;
 	Model_OBJ model;
+	GLuint textureId;
 
 /*PUBLIC BLOCK*/
 public:
@@ -56,7 +57,9 @@ public:
 			Destroyer all dynamic memory instatiated 
 			int this class
 	*************************************************************/
+
 	~Sprite() {
+		glDeleteTextures(1, &textureId);
 	}
 
 
@@ -64,7 +67,6 @@ public:
 	GLuint loadAndBufferImage(const char* imageName) {
 		int w, h;		//Width and height
 		/* load an image file directly as a new OpenGL texture */
-		GLuint textureId;
 		unsigned char* image = SOIL_load_image(imageName, &w, &h, 0, SOIL_LOAD_RGBA);
 		glGenTextures(1, &textureId);
 		glBindTexture(GL_TEXTURE_2D, textureId);
@@ -76,7 +78,6 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		SOIL_free_image_data(image);
-
 		return textureId;
 	}
 	

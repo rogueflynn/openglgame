@@ -19,8 +19,6 @@ private:
 	GLuint textureBufferID;	
 /*PUBLIC BLOCK*/
 public:
-	~Enemy() {
-	}
 	/**************************************************
 					initialize the  enemy
 	***************************************************/

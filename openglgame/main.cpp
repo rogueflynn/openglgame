@@ -170,12 +170,12 @@ void update(int data) {
 		deltaTime = (currentTime - previousTime);
 
 		enemyCollision();							//Check if the player has collided with an enemy
-		playerMove(deltaTime);						//Move the player
 		if(enemies.size() < 7 && enemyCount != 48)
 			loadEnemies();
 
 		if(enemies.size() == 1 && enemyCount == 48)
 			cleanUp();
+		playerMove(deltaTime);						//Move the player
 
 		//cout << "X: " <<  player[0]->getX() << " Y:" << player[0]->getY() << "\n";		
 
@@ -196,9 +196,7 @@ void render() {
 	//Camera
 	gluLookAt( 0,-1,5, 0,0,0, 0,1,0);
 	background.Draw();
-	//Draw player
-	player[0]->setColor(1.0f, 0.0f,0.0f);
-	player[0]->Draw();
+	
 
 	//Draw the enemies
 	
@@ -209,7 +207,9 @@ void render() {
 	}
 
 	enemySpawn();
-
+//Draw player
+	player[0]->setColor(1.0f, 0.0f,0.0f);
+	player[0]->Draw();
 	glutSwapBuffers();												//Swaps the buffers when double buffer is used
 }
 
@@ -261,7 +261,7 @@ void playerMove(float &deltaTime) {
 		else 
 			player[0]->stopMovingDown(player[0]->getY());
 	} 
-	if(keyPress.Space()) {							//Player shoots
+	if(keyPress.Space()) {
 		player[0]->shoot();
 	} 
 
@@ -278,14 +278,10 @@ void enemyCollision() {
 	int index = -1;
 	int size = enemies.size();
 	for(unsigned int i = 0; i < enemies.size(); i++){
-		if((box.intersect(*player[0], *enemies[i]))){
-			enemies[i]->setColor(0.0f, 1.0f, 0.0f);	
-			//enemies.erase(enemies.begin() + i);
-		} 
+		
 		if(player[0]->bulletCollision(*enemies[i])) {
 			index = i;
 			deleteEnemies(index);
-			break;
 		}
 	}
 }
