@@ -24,7 +24,7 @@ public:
 	***************************************************/
 	void init() {
 		//Used to make the hitbox transparent
-		textureBufferID = loadAndBufferImage("hitbox.png");
+		textureBufferID = loadAndBufferImage("Textures/hitbox.png");
 		setPoint(0.4f, 0.4f, 0.0f);
 		//Calculate size of square
 		size = ((point.X * 10 * 2) + 1) * scale.X;

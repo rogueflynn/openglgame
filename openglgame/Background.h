@@ -1,5 +1,8 @@
 /*************************************************************************
-	The background class is used to 
+	Background
+	Author: Victor Gonzalez
+	Purpose: 
+	The background class is used to load the background 
 
 ***************************************************************************/
 
@@ -32,7 +35,7 @@ public:
 		/* load an image file directly as a new OpenGL texture */
 		texture[0] = SOIL_load_OGL_texture
 			(
-			"Data/space.png",
+			"Textures/space.png",
 			SOIL_LOAD_AUTO,
 			SOIL_CREATE_NEW_ID,
 			SOIL_FLAG_INVERT_Y

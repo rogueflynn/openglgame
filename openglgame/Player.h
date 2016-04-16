@@ -30,13 +30,13 @@ public:
 					initialize the player
 	***************************************************/
 	void init() {
-		textureBufferID = loadAndBufferImage("hitbox.png");
+		textureBufferID = loadAndBufferImage("Textures/hitbox.png");
 		setPoint(0.25f, 0.25f, 0.0f);
 		bulletFired = false;
 		//Calculate size of square
 		size = ((point.X * 10 * 2) + 1) * scale.X;
 		position.Set(0.0f, -3.5f,0.0f);
-		model.Load("ship.obj");
+		model.Load("models/ship.obj");
 	}
 
 	/**********************************************

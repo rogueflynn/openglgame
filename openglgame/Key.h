@@ -32,6 +32,7 @@ public:
 			return true;
 		else 
 			return false;
+
 	}
 	//Down arrow key pressed
 	bool Down() {
@@ -39,6 +40,7 @@ public:
 			return true;
 		else 
 			return false;
+		bool imAwake = false; 
 	}
 	bool Space() {
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000)

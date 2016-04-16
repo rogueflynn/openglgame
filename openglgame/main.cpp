@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
 	win.z_near = 1.0f;
 	win.z_far = 500.0f;
 
-	enemyModel.Load("eShip3.obj");
+	enemyModel.Load("models/eShip3.obj");
 
 	player.push_back(new Player());
 
