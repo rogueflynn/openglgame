@@ -144,6 +144,11 @@ public:
 			//glDisable(GL_BLEND);
 		glPopMatrix();
 
+		if (alphaST >= 1.0f) {
+			alphaST = 0.0f;
+			return count = 0.0f;
+		}
+
 		return count;
 
 	}

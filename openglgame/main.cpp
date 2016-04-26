@@ -54,7 +54,7 @@ enum _game_scenes
 	_scene_high_score = 5,		//not used, TODO list
 	_scene_exit = 6,			//exit the game
 };
-int Current_Game_Scene_Enum = 2; //init to start screen here
+int Current_Game_Scene_Enum = 0; //init to start screen here
 
 /*******************************
  _scene_level_one - Variables
@@ -104,7 +104,8 @@ float currentTimett, previousTimett;
 float customScrollingCount = 0;				//custom calculations using deltatime
 float decrementCount = 0;
 const float CUSTOMTIME_TO_SCROLL = 60.0f;	//number of seconds game intro will play
-bool firstPassTimer = true;
+bool firstPassTimerNGI = true;
+bool firstPassTimerL1 = true;
 bool fadeStarted = false;
 
 
@@ -361,7 +362,7 @@ void render() {
 				//reset some variables
 				customScrollingCount = 0;
 				decrementCount = 0;
-				firstPassTimer = true;
+				//firstPassTimer = true;
 				fadeStarted = false;
 			}
 		}
@@ -398,23 +399,34 @@ void render() {
 		//after update checks for correct kill count, being fadeOut
 		if (fadeStarted) {
 			//init and update the decrement-count
-			if (firstPassTimer) {
-				decrementCount = sceneTransition.FadeOut(60.0f);
-				firstPassTimer = false;
+			if (firstPassTimerL1) {
+				decrementCount = sceneTransition.FadeOut(70.0f);
+				firstPassTimerL1 = false;
 			}
-			else {
+			else if (!firstPassTimerL1){
 				decrementCount = sceneTransition.FadeOut(decrementCount);
+
+				//check shrinking count for fadeout finished = 0
+				if (decrementCount <= 0) {
+					//change scene for render scene switch
+					Current_Game_Scene_Enum = _scene_start_menu;	//-- goes back to start screen
+																	//reset some variables
+					customScrollingCount = 0;
+					decrementCount = 0;
+					//firstPassTimer = true;
+					fadeStarted = false;
+				}
 			}
-			//check shrinking count for fadeout finished = 0
-			if (decrementCount <= 0) {
-				//change scene for render scene switch
-				Current_Game_Scene_Enum = _scene_start_menu;	//-- goes back to start screen
-				//reset some variables
-				customScrollingCount = 0;
-				decrementCount = 0;
-				firstPassTimer = true;
-				fadeStarted = false;
-			}
+			////check shrinking count for fadeout finished = 0
+			//if (decrementCount <= 0) {
+			//	//change scene for render scene switch
+			//	Current_Game_Scene_Enum = _scene_start_menu;	//-- goes back to start screen
+			//	//reset some variables
+			//	customScrollingCount = 0;
+			//	decrementCount = 0;
+			//	firstPassTimer = true;
+			//	fadeStarted = false;
+			//}
 		}
 
 		glutSwapBuffers();		//Swaps the buffers when double buffer is used
@@ -515,9 +527,9 @@ void timeTick(int data)
 	//timer variables and  logic
 	previousTimett = currentTimett;
 	currentTimett = (float)glutGet(GLUT_ELAPSED_TIME);
-	if (firstPassTimer) {
+	if (firstPassTimerNGI) {
 		deltaTimett = 1.0f;
-		firstPassTimer = false;
+		firstPassTimerNGI = false;
 	}
 	else { 
 		deltaTimett = (currentTime - previousTime);
