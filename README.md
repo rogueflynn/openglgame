@@ -1,5 +1,11 @@
 # openglgame
+Technical:
+Compiler:  Visual Studio 2012/2015
+Programming Language: C/C++
+Graphics Library: OpenGL (Freeglut/Glew)
+Sound Library: OpenAL
 
+Project Description:
 This is our project for our graphics class.  The project is intended to be a game but as 
 of right now, we are still unsure of what type of game that it will be. This version of the project 
 currently doesn't do much.  It's just a a square that you can move and another square that is static.
@@ -22,10 +28,9 @@ Decoupled much of the programming code.
 Took out shader code and immediate mode code.  Added in ship graphic.
 
 4/26/2016 - Version 0.025 
-
 Updated render() in main.cpp to handle switching between multiple scenes using the int 'Current_Game_Scene_Enum' and a Scene_Changer enum structure. Current scenes setup in this version include main-menu, scrolling-intro-text, and level-1. SceneTransition.h added for fade effect on any screne rendered. Background.h updated with multiple draw fucntions for different scenes.
 
-4/26/2016 - version 0.1
+4/26/2016 - Version 0.1
 Combined sound files and scene changer into the master branch.
 
 
