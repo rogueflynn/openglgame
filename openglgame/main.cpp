@@ -48,6 +48,7 @@ float righttWall = 6.0f;
 float topWall = 3.0f;
 float bottomWall = -4.0f;
 float enemyCount = 0;
+bool gameActive = true;
 
 //Vectors
 std::vector<Enemy*> enemies;		//Enemy
@@ -189,7 +190,7 @@ void update(int data) {
 ************************************************/
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
-	glutTimerFunc(ms, update, 0);									//update at 60 frames per second
+	glutTimerFunc(ms, update, 0);									//update at 60 frames per secondk
 
 	glLoadIdentity();
 
@@ -207,7 +208,8 @@ void render() {
 	}
 
 	enemySpawn();
-//Draw player
+	
+	//Draw player
 	player[0]->setColor(1.0f, 0.0f,0.0f);
 	player[0]->Draw();
 	glutSwapBuffers();												//Swaps the buffers when double buffer is used
