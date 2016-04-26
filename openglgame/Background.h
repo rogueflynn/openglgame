@@ -84,7 +84,7 @@ public:
 			drawSquareTwo();
 			glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
-		}
+	}
 		
 	//This method is used to store the vertices of the cube
 	void drawSquareOne() {
@@ -103,6 +103,7 @@ public:
 			
 	//This method is used to store the vertices of the cube
 	void drawSquareTwo() {
+		
 		glPushMatrix();
 		glBegin(GL_QUADS);
 			// Front Face
@@ -115,6 +116,78 @@ public:
 		glPopMatrix();
 
 	}
+
+
+	//Draws one background square without scrolling for the intro screen
+	void DrawNewGameIntroBackground() {
+		//glScalef(50.0f, 50.0f, 50.0f);
+		glPushMatrix();
+			/*if (scrollY1 < bottom) {
+				scrollY1 = top;
+			}*/
+			glBindTexture(GL_TEXTURE_2D, texture[0]);
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glRotatef(90, 0.0f, 0.0f, 1.0f);
+			glRotated(7, 0.0f, 1.0f, 0.0f);
+			glTranslatef(-10.0f, 0.0f, -300.0f);
+			glScalef(455.0f, 455.0f, 455.0f);
+			//glScalef(1.0f, 1.0f, 1.0f);
+			drawNewGameIntroSquare();
+			glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+
+	//This method is will store the vertices of the INTRO SCREEN bacground cube
+	void drawNewGameIntroSquare() {
+		glPushMatrix();
+		glBegin(GL_QUADS);
+			// Front Face
+			glColor3f(3.0f, 3.0f, 3.0f);
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(-15.0f, -15.0f, -1.0f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(15.0f, -15.0f, -1.0f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(15.0f, 15.0f, -1.0f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(-15.0f, 15.0f, -1.0f);
+		glEnd();
+		glPopMatrix();
+
+	}
+
+
+	//Draws one background square without scrolling for the start menu
+	void DrawStartMenuBackground() {
+
+		glPushMatrix();
+			glBindTexture(GL_TEXTURE_2D, texture[0]);
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//glRotatef(90, 0.0f, 0.0f, 1.0f);
+			glRotated(8, 1.0f, 0.0f, 0.0f);
+			glTranslatef(0.0f, 0.0f, -1.75f);
+			glScalef(1.0f, 1.0f, 1.0f);
+			//glScalef(1.0f, 1.0f, 1.0f);
+			drawStartMenuSquare();
+			glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+
+	//This method is will store the vertices of the start menu
+	void drawStartMenuSquare() {
+		glPushMatrix();
+			glBegin(GL_QUADS);
+				// Front Face
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTexCoord2f(0.0f, 0.0f); glVertex3f(-15.0f, -15.0f, -1.0f);
+				glTexCoord2f(1.0f, 0.0f); glVertex3f(15.0f, -15.0f, -1.0f);
+				glTexCoord2f(1.0f, 1.0f); glVertex3f(15.0f, 15.0f, -1.0f);
+				glTexCoord2f(0.0f, 1.0f); glVertex3f(-15.0f, 15.0f, -1.0f);
+			glEnd();
+		glPopMatrix();
+
+	}
+
 
 	//Scrolls the background
 	void Scroll() {
