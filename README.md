@@ -25,3 +25,8 @@ the int 'Current_Game_Scene_Enum' and a Scene_Changer enum structure.
 Current scenes setup in this version include main-menu, scrolling-intro-text, and level-1.
 SceneTransition.h added for fade effect on any screne rendered.
 Background.h updated with multiple draw fucntions for different scenes.
+
+
+
+
+
