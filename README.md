@@ -9,6 +9,7 @@ Graphics Library: OpenGL (Freeglut/Glew)
 
 Sound Library: OpenAL 
 
+
 PROJECT DESCRIPTION:
 
 This is our project for our graphics class.  The project is intended to be a game but as 
