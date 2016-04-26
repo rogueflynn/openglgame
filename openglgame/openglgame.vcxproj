@@ -20,6 +20,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Key.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SceneTransition.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Player.h" />
