@@ -2,11 +2,15 @@
 TECHNICAL:
 
 Compiler:  Visual Studio 2012/2015 
-Programming Language: C/C++ 
+
+Programming Language: C/C++
+
 Graphics Library: OpenGL (Freeglut/Glew) 
+
 Sound Library: OpenAL 
 
 PROJECT DESCRIPTION:
+
 This is our project for our graphics class.  The project is intended to be a game but as 
 of right now, we are still unsure of what type of game that it will be. This version of the project 
 currently doesn't do much.  It's just a a square that you can move and another square that is static.
