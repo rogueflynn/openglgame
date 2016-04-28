@@ -48,6 +48,11 @@ public:
 		else 
 			return false;
 	}
-
+	bool Enter() {
+		if (GetAsyncKeyState(VK_RETURN)& 0x8000)
+			return true;
+		else 
+			return false;
+	}
 private:
 };

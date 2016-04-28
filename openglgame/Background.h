@@ -154,7 +154,6 @@ public:
 
 	}
 
-
 	//Draws one background square without scrolling for the start menu
 	void DrawStartMenuBackground() {
 

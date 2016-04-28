@@ -62,6 +62,10 @@ int Current_Game_Scene_Enum = 0; //init to start screen here
 ********************************/
 //Global variables
 int ms = (1/60) * 1000;  //Calculates 60fps (1 sec/60fps) * (1000ms / 1 sec)
+int resetTime = 2000;
+int transitionTime = 1000;
+int transitionCount = 0;
+bool transition = false;
 bool alive = true;
 glutWindow win;
 float deltaTime = 1.0f;
@@ -73,6 +77,9 @@ float topWall = 3.0f;
 float bottomWall = -4.0f;
 float enemyCount = 0;
 int killCount = 0;
+bool gameActive = false;
+int level = 0;
+
 //Vectors
 std::vector<Enemy*> enemies;		//Enemy
 std::vector<Player*> player;		//Player vector
@@ -90,6 +97,12 @@ Sound gameSound;
 _scene_start_menu - Variables & text data
 ***********************************************/
 char gameTitle[1][30];
+char levelTitle[1][30];
+char levelText[1][30];
+char gameOverTitle[1][30];
+char lifeCountTitle[1][30];
+char lifeCount[1][30];
+char playerText[1][30];
 int gameTitleLineCount = 1;
 char startMenuInstructions[2][80];
 int startInstructLineCount = 2;
@@ -110,6 +123,18 @@ bool firstPassTimerNGI = true;
 bool firstPassTimerL1 = true;
 bool fadeStarted = false;
 
+void resetIntroScrolling() {
+	deltaTimett = 1.0f;
+	customScrollingCount = 0;				//custom calculations using deltatime
+	view = 20.0;
+	decrementCount = 0;
+	firstPassTimerNGI = true;
+	firstPassTimerL1 = true;
+	UpwardsScrollVelocity = -40.0;
+}
+
+void displayLevelTitle();
+void displayLevelText();
 
 /***********************************
  all scenes - Method Prototypes
@@ -124,6 +149,19 @@ void renderIntroText();
 void enemyCollision();
 void render();				// render() decides which scene to render next
 void initialize();			// initialize settings for all scenes
+void resetPlayer(int data) {
+	if(!(player[0]->isAlive) && player[0]->lives > -1) {
+		player[0]->lives -= 1;		
+		player[0]->playerReset();
+		player[0]->isAlive = true;
+	}
+}
+void loadTitle();
+void loadPlayerTitle();
+void lifeTitle();
+void lifeCountNumber();
+void gameOverScreen();
+void transitionTitle();
 
 
 /***********************************
@@ -133,7 +171,6 @@ void initialize();			// initialize settings for all scenes
 void deleteEnemies(int &index) {
 		delete enemies[index];
 		enemies.erase(enemies.begin() + index);
-
 }
 //ensures no data left behind by enemies
 void cleanUp() {
@@ -143,6 +180,17 @@ void cleanUp() {
 		deleteEnemies(index);
 	}
 	enemyCount = 0;
+}
+
+void cleanUpGame() {
+	int index = -1;
+	cleanUp();
+	/*
+	for(unsigned int i = 0; i < player.size(); i++) {
+		delete player[i];
+		index = i;
+		player.erase(player.begin() + index);
+	}*/
 }
 
 //Loads all of the enemies into the game world
@@ -187,14 +235,6 @@ int main(int argc, char** argv) {
 	win.field_of_view_angle = 90;
 	win.z_near = 1.0f;
 	win.z_far = 500.0f;
-
-
-	//load start menu text here
-	std::strcpy(gameTitle[0], "The Conquest of Sontar");
-
-	std::strcpy(startMenuInstructions[0], "press 'Space' to start your New Conquest!");
-	std::strcpy(startMenuInstructions[1], "press 'Escape' to exit like a coward.");
-
 
 	//load new game intro text here
 	std::strcpy(quote[0], "Hello Sontaran Protector... this is Sontar Fleet Command.");
@@ -249,26 +289,32 @@ int main(int argc, char** argv) {
 	location of the player and tiles.
 *************************************************/
 void update(int data) {
+	if(gameActive) {
+		background.Scroll();
+		//Calculates the frame rate
+		previousTime = currentTime;
+		currentTime = (float)glutGet(GLUT_ELAPSED_TIME);
+		deltaTime = (currentTime - previousTime);
 
-	background.Scroll();
-	//Calculates the frame rate
-	previousTime = currentTime;
-	currentTime = (float)glutGet(GLUT_ELAPSED_TIME);
-	deltaTime = (currentTime - previousTime);
+		enemyCollision();							//Check if the player has collided with an enemy
+		playerMove(deltaTime);						//Move the player
+		if (enemies.size() < 7 && enemyCount != 48)
+			loadEnemies();
 
-	enemyCollision();							//Check if the player has collided with an enemy
-	playerMove(deltaTime);						//Move the player
-	if (enemies.size() < 7 && enemyCount != 48)
-		loadEnemies();
+		if (enemies.size() == 1 && enemyCount == 48 && killCount < 20)
+			cleanUp();
 
-	if (enemies.size() == 1 && enemyCount == 48)
-		cleanUp();
-
-	/* KILL COUNT FOR LEVEL ! only */
-	if (killCount == 5) {
-		fadeStarted = true;
+		/* KILL COUNT FOR LEVEL ! only */
+		if (player[0]->lives <0) {
+			fadeStarted = true;
+			cleanUp();
+		}
+		if(enemies.size() == 1 && enemyCount == 48 && killCount >= 20) {
+			killCount = 0;
+			fadeStarted = true;
+			cleanUp();
+		}
 	}
-
 	//cout << "X: " <<  player[0]->getX() << " Y:" << player[0]->getY() << "\n";		
 	glutPostRedisplay();
 }
@@ -297,6 +343,373 @@ void render() {
 		//draw BKGRND glQuad to the screen
 		background.DrawStartMenuBackground();
 
+		loadTitle();
+
+		//swap buffers to clear and redraw
+		glutSwapBuffers();
+
+		break;
+
+	case _scene_new_game_intro:
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
+
+		glutTimerFunc(ms, timeTick, 0);									//update at 60 frames per second
+
+		glLoadIdentity();
+
+		gluLookAt(0.0, 30.0, 90.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+		renderIntroText();
+
+		background.DrawNewGameIntroBackground();
+
+		if (fadeStarted && !(gameActive)) {
+			decrementCount = sceneTransition.FadeOut(decrementCount);
+			//check shrinking count for fadeout finished = 0
+			if (decrementCount <= 0) {
+				//change scene for render scene switch
+				Current_Game_Scene_Enum = _scene_level_one;
+				//reset some variables
+				customScrollingCount = 0;
+				decrementCount = 0;
+				//firstPassTimer = true;
+				fadeStarted = false;
+				gameActive = true;
+				level++;
+				}
+		}
+		
+		glutSwapBuffers();
+
+		break;
+
+	case _scene_level_one:
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
+
+		glutTimerFunc(ms, update, 0);									//update at 60 frames per second
+
+		glLoadIdentity();
+		
+		displayLevelTitle();
+		//Camera
+		gluLookAt(0, -1, 5, 0, 0, 0, 0, 1, 0);
+		displayLevelTitle();	
+		displayLevelText();
+		loadPlayerTitle();
+		lifeTitle();
+		lifeCountNumber();
+		background.Draw();
+
+		//Draw player
+		player[0]->setColor(1.0f, 0.0f, 0.0f);
+		player[0]->Draw();
+
+		//Draw the enemies
+		for (unsigned int i = 0; i < enemies.size(); i++) {
+			enemies[i]->Draw();
+			enemyModel.Position(enemies[i]->getX(), enemies[i]->getY() - 0.5f, enemies[i]->getZ());
+			enemyModel.drawObject();
+		}
+
+		enemySpawn();
+
+		//after update checks for correct kill count, being fadeOut
+		if (fadeStarted) {
+			cleanUp();
+			//init and update the decrement-count
+			if (firstPassTimerL1) {
+				decrementCount = sceneTransition.FadeOut(70.0f);
+				firstPassTimerL1 = false;
+			}
+			else if (!firstPassTimerL1){
+				decrementCount = sceneTransition.FadeOut(decrementCount);
+
+				//check shrinking count for fadeout finished = 0
+				if (decrementCount <= 0) {
+					//change scene for render scene switch
+					if(player[0]->lives < 0)
+						Current_Game_Scene_Enum = _scene_game_over;	//-- goes back to start screen
+					else 
+						Current_Game_Scene_Enum = _scene_level_two;
+																	//reset some variables
+					customScrollingCount = 0;
+					decrementCount = 0;
+					player[0]->playerReset();
+					level++;
+					//firstPassTimer = true;
+					fadeStarted = false;
+				}
+			}
+		}
+
+		glutSwapBuffers();		//Swaps the buffers when double buffer is used
+
+		break;
+
+	case _scene_level_two:
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
+
+		glutTimerFunc(ms, update, 0);				
+
+		glLoadIdentity();
+
+		//Camera
+		gluLookAt(0, -1, 5, 0, 0, 0, 0, 1, 0);
+		loadPlayerTitle();
+		displayLevelTitle();	
+		displayLevelText();
+		lifeTitle();
+		lifeCountNumber();
+		background.Draw();
+
+		//Draw player
+		player[0]->setColor(1.0f, 0.0f, 0.0f);
+		player[0]->Draw();
+
+		//Draw the enemies
+
+		for (unsigned int i = 0; i < enemies.size(); i++) {
+			enemies[i]->Draw();
+			enemyModel.Position(enemies[i]->getX(), enemies[i]->getY() - 0.5f, enemies[i]->getZ());
+			enemyModel.drawObject();
+		}
+
+		enemySpawn();
+
+		//after update checks for correct kill count, being fadeOut
+		if (fadeStarted) {
+			//init and update the decrement-count
+			cleanUp();
+			if (firstPassTimerL1) {
+				decrementCount = sceneTransition.FadeOut(70.0f);
+				firstPassTimerL1 = false;
+			}
+			else if (!firstPassTimerL1){
+				decrementCount = sceneTransition.FadeOut(decrementCount);
+
+				//check shrinking count for fadeout finished = 0
+				if (decrementCount <= 0) {
+					//change scene for render scene switch
+					if(player[0]->lives < 0)
+						Current_Game_Scene_Enum = _scene_game_over;	//-- goes back to start screen
+					else 
+						Current_Game_Scene_Enum = _scene_game_over;
+																	//reset some variables
+					customScrollingCount = 0;
+					decrementCount = 0;
+					//firstPassTimer = true;
+					player[0]->playerReset();
+					level = 0;
+					fadeStarted = false;
+				}
+			}
+		}
+
+		glutSwapBuffers();		//Swaps the buffers when double buffer is used
+
+		break;
+
+	case _scene_game_over:	//not implemented, here for later use
+		cleanUp();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
+		glLoadIdentity();
+		gameActive = false;
+		killCount = 0;
+		//camara
+		gluLookAt(0, -1, 5, 0, 0, 0, 0, 1, 0);
+		resetIntroScrolling();
+		//draw BKGRND glQuad to the screen
+		background.DrawStartMenuBackground();
+		player[0]->lives = 0;
+		gameOverScreen();
+		
+		level = 0;
+
+		//swap buffers to clear and redraw
+		glutSwapBuffers();
+		break;
+
+	case _scene_high_score:	//not implemented, here for later use
+		break;
+
+	case _scene_exit:
+		exit(0);
+		break;
+
+	default:
+		printf("FATAL ERROR: 'Current_Game_Scene_Enum' is not set to any of the current enum values");
+		break;
+	}
+
+	if(gameActive) {
+		if(player[0]->isAlive == false) {
+			glutTimerFunc(resetTime, resetPlayer, 0);									//update at 60 frames per second
+		}
+	}
+}
+
+void displayLevelTitle() {
+	if(player[0]->lives != -1) {
+		std::string levelNum = std::to_string(level);
+		const char *thisLevel = new char[30];
+		thisLevel = levelNum.c_str();
+		std::strcpy(levelTitle[0], thisLevel);
+			//render TITLE text to the screen
+			//place TITLE infront of BKGRND
+			glLineWidth((GLfloat) 3.0f);
+			int lengthOfLine, gtl, i;
+
+			for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+			{
+				lengthOfLine = (int)strlen(levelTitle[gtl]);
+				glPushMatrix();
+					//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+					glTranslatef(-3.0f, -6.0f, 0.0f);
+					glRasterPos2f(-1.8f, 2);
+					for (i = 0; i < lengthOfLine; i++)
+					{
+						glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+						//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+						glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, levelTitle[gtl][i]);
+					}
+				glPopMatrix();
+			}
+	}
+}
+void displayLevelText() {
+	if(player[0]->lives != -1) {
+		std::strcpy(levelText[0], "Level: ");;
+			//render TITLE text to the screen
+			//place TITLE infront of BKGRND
+			glLineWidth((GLfloat) 3.0f);
+			int lengthOfLine, gtl, i;
+
+			for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+			{
+				lengthOfLine = (int)strlen(levelText[gtl]);
+				glPushMatrix();
+					//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+					glTranslatef(-4.0f, -6.0f, 0.0f);
+					glRasterPos2f(-1.8f, 2);
+					for (i = 0; i < lengthOfLine; i++)
+					{
+						glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+						//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+						glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, levelText[gtl][i]);
+					}
+				glPopMatrix();
+			}
+	}
+}
+
+void lifeCountNumber() {
+	if(player[0]->lives != -1) {
+		std::string life = std::to_string(player[0]->lives);
+		const char *thisLife = new char[30];
+		thisLife = life.c_str();
+		std::strcpy(lifeCount[0], thisLife);
+			//render TITLE text to the screen
+			//place TITLE infront of BKGRND
+			glLineWidth((GLfloat) 3.0f);
+			int lengthOfLine, gtl, i;
+
+			for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+			{
+				lengthOfLine = (int)strlen(lifeCount[gtl]);
+				glPushMatrix();
+					//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+					glTranslatef(9.0f, 3.7f, 0.0f);;
+					glRasterPos2f(-1.8f, 2);
+					for (i = 0; i < lengthOfLine; i++)
+					{
+						glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+						//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+						glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, lifeCount[gtl][i]);
+					}
+				glPopMatrix();
+			}
+	}
+}
+
+void gameOverScreen() {
+	std::strcpy(gameOverTitle[0], "Game Over");
+		//render TITLE text to the screen
+		//place TITLE infront of BKGRND
+		glLineWidth((GLfloat) 3.0f);
+		int lengthOfLine, gtl, i;
+
+		for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+		{
+			lengthOfLine = (int)strlen(gameOverTitle[gtl]);
+			glPushMatrix();
+				//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+				glTranslatef(1.0f, -3.0f, 0.0f);
+				glRasterPos2f(-1.8f, 2);
+				for (i = 0; i < lengthOfLine; i++)
+				{
+					glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+					//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+					glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, gameOverTitle[gtl][i]);
+				}
+			glPopMatrix();
+		}
+}
+
+void loadPlayerTitle() {
+		std::strcpy(gameTitle[0], "Player");
+		//render TITLE text to the screen
+		//place TITLE infront of BKGRND
+		glLineWidth((GLfloat) 3.0f);
+		int lengthOfLine, gtl, i;
+
+		for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+		{
+			lengthOfLine = (int)strlen(gameTitle[gtl]);
+			glPushMatrix();
+				//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+				glTranslatef(-7.6f, 3.7f, 0.0f);
+				glRasterPos2f(-1.8f, 2);
+				for (i = 0; i < lengthOfLine; i++)
+				{
+					glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+					//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+					glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, gameTitle[gtl][i]);
+				}
+			glPopMatrix();
+		}
+}
+
+void lifeTitle() {
+	std::strcpy(lifeCountTitle[0], "Lives:");
+		//render TITLE text to the screen
+		//place TITLE infront of BKGRND
+		glLineWidth((GLfloat) 3.0f);
+		int lengthOfLine, gtl, i;
+
+		for (gtl = 0;gtl<gameTitleLineCount;gtl++)
+		{
+			lengthOfLine = (int)strlen(lifeCountTitle[gtl]);
+			glPushMatrix();
+				//glTranslatef(-(lengthOfLine * 37), -(gtl * 200), 0.0);
+				glTranslatef(7.6f, 3.7f, 0.0f);
+				glRasterPos2f(-1.8f, 2);
+				for (i = 0; i < lengthOfLine; i++)
+				{
+					glColor3f( 1.0f, 1.0f, 1.0f);	//stainless steel rgb code
+					//glutStrokeCharacter(GLUT_STROKE_ROMAN, gameTitle[gtl][i]);
+					glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, lifeCountTitle[gtl][i]);
+				}
+			glPopMatrix();
+		}
+}
+
+
+void loadTitle() {
+
+		std::strcpy(gameTitle[0], "The Conquest of Sontar");
+		//load start menu text here
+		std::strcpy(startMenuInstructions[0], "press 'Enter' to start your New Conquest!");
+		std::strcpy(startMenuInstructions[1], "press 'Escape' to exit like a coward.");
 		//render TITLE text to the screen
 		//place TITLE infront of BKGRND
 		glLineWidth((GLfloat) 3.0f);
@@ -335,155 +748,8 @@ void render() {
 				}
 			glPopMatrix();
 		}
-
-		//swap buffers to clear and redraw
-		glutSwapBuffers();
-
-		break;
-
-	case _scene_new_game_intro:
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
-
-		glutTimerFunc(ms, timeTick, 0);									//update at 60 frames per second
-
-		glLoadIdentity();
-
-		gluLookAt(0.0, 30.0, 90.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-
-		renderIntroText();
-
-		background.DrawNewGameIntroBackground();
-
-		if (fadeStarted) {
-			decrementCount = sceneTransition.FadeOut(decrementCount);
-			//check shrinking count for fadeout finished = 0
-			if (decrementCount <= 0) {
-				//change scene for render scene switch
-				Current_Game_Scene_Enum = _scene_level_one;
-				//reset some variables
-				customScrollingCount = 0;
-				decrementCount = 0;
-				//firstPassTimer = true;
-				fadeStarted = false;
-			}
-		}
-		
-		glutSwapBuffers();
-
-		break;
-
-	case _scene_level_one:
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
-
-		glutTimerFunc(ms, update, 0);									//update at 60 frames per second
-
-		glLoadIdentity();
-
-		//Camera
-		gluLookAt(0, -1, 5, 0, 0, 0, 0, 1, 0);
-		background.Draw();
-		//Draw player
-		player[0]->setColor(1.0f, 0.0f, 0.0f);
-		player[0]->Draw();
-
-		//Draw the enemies
-
-		for (unsigned int i = 0; i < enemies.size(); i++) {
-			enemies[i]->Draw();
-			enemyModel.Position(enemies[i]->getX(), enemies[i]->getY() - 0.5f, enemies[i]->getZ());
-			enemyModel.drawObject();
-		}
-
-		enemySpawn();
-
-		//after update checks for correct kill count, being fadeOut
-		if (fadeStarted) {
-			//init and update the decrement-count
-			if (firstPassTimerL1) {
-				decrementCount = sceneTransition.FadeOut(70.0f);
-				firstPassTimerL1 = false;
-			}
-			else if (!firstPassTimerL1){
-				decrementCount = sceneTransition.FadeOut(decrementCount);
-
-				//check shrinking count for fadeout finished = 0
-				if (decrementCount <= 0) {
-					//change scene for render scene switch
-					Current_Game_Scene_Enum = _scene_start_menu;	//-- goes back to start screen
-																	//reset some variables
-					customScrollingCount = 0;
-					decrementCount = 0;
-					//firstPassTimer = true;
-					fadeStarted = false;
-				}
-			}
-		}
-
-		glutSwapBuffers();		//Swaps the buffers when double buffer is used
-
-		break;
-
-	case _scene_level_two:
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				//Clear the screen of previous drawn data
-
-																		// update fucntion called
-		glutTimerFunc(ms, update, 0);									//update at 60 frames per second
-
-		glLoadIdentity();
-
-		//Camera
-		gluLookAt(0, -1, 5, 0, 0, 0, 0, 1, 0);
-		background.Draw();
-		//Draw player
-		player[0]->setColor(1.0f, 0.0f, 0.0f);
-		player[0]->Draw();
-
-		//Draw the enemies
-
-		for (unsigned int i = 0; i < enemies.size(); i++) {
-			enemies[i]->Draw();
-			enemyModel.Position(enemies[i]->getX(), enemies[i]->getY() - 0.5f, enemies[i]->getZ());
-			enemyModel.drawObject();
-		}
-
-		enemySpawn();
-
-		glutSwapBuffers();		//Swaps the buffers when double buffer is used
-
-		break;
-
-	case _scene_game_over:	//not implemented, here for later use
-		break;
-
-	case _scene_high_score:	//not implemented, here for later use
-		break;
-
-	case _scene_exit:
-		exit(0);
-		break;
-
-	default:
-		printf("FATAL ERROR: 'Current_Game_Scene_Enum' is not set to any of the current enum values");
-		break;
-	}
-
+	
 }
-
-
-//void startMenuKeypress(int data) {
-//
-//	if (keyPress.Enter()) {
-//		Current_Game_Scene_Enum = _scene_new_game_intro;
-//	}
-//	//if player hits ESC_KEY, change CURRENT_GAME_SCENE_ENUM == _scene_exit
-//	if (keyPress.Escape()) {
-//		Current_Game_Scene_Enum = _scene_exit;
-//	}
-//
-//}
 
 
 //*********************************************
@@ -565,10 +831,14 @@ void key(unsigned char key, int x, int y) {
 		break;
 		
 	// glut key right-hand shift used on start screen only
-	case 32:
+	case 13:
 		if (Current_Game_Scene_Enum == _scene_start_menu) 
 		{
 			Current_Game_Scene_Enum = _scene_new_game_intro;
+			glutPostRedisplay();
+		}  
+		if(Current_Game_Scene_Enum  == _scene_game_over) {
+			Current_Game_Scene_Enum = _scene_start_menu;
 			glutPostRedisplay();
 		}
 		break;
@@ -631,7 +901,10 @@ void enemyCollision() {
 
 		if((box.intersect(*player[0], *enemies[i]))) {
 			enemies[i]->setColor(0.0f, 1.0f, 0.0f);	
-			//enemies.erase(enemies.begin() + i);
+			if(player[0]->lifeBar >= -2.0f) 
+				player[0]->lifeBar -= 0.003f;
+			else
+				player[0]->isAlive = false;
 		}
 
 		if(player[0]->bulletCollision(*enemies[i])) {
@@ -639,7 +912,7 @@ void enemyCollision() {
 			deleteEnemies(index);
 			//update global killCount variable here, to advance the game with
 			killCount++;
-			printf("Kill count is: %i", killCount);
+			//printf("Kill count is: %i", killCount);
 			break;
 		}
 	}
@@ -694,5 +967,5 @@ void initialize ()
 	if (!gameSound.init("Sounds/background.raw", "Sounds/shot.raw"))
 			printf("Sounds can't be loaded properly\n");
 		else
-			gameSound.playBackground();
+			gameSound.playOpening();
 }

@@ -130,14 +130,15 @@ bool Model_OBJ::Load(char* filename)
 		{		
 			getline (objFile,line);											// Get line from file
  
+			//First letter is V then the rest have to be 
 			if (line.c_str()[0] == 'v')										// The first character is a v: on this line is a vertex stored.
 			{
 				line[0] = ' ';												// Set first character to 0. This will allow us to use sscanf
  
 				sscanf(line.c_str(),"%f %f %f ",							// Read floats from the line: v X Y Z
-					&vertexBuffer[TotalConnectedPoints],
-					&vertexBuffer[TotalConnectedPoints+1], 
-					&vertexBuffer[TotalConnectedPoints+2]);
+					&vertexBuffer[TotalConnectedPoints],					//Vertex X,
+					&vertexBuffer[TotalConnectedPoints+1],					//Vertex Y,
+					&vertexBuffer[TotalConnectedPoints+2]);					//Vertex Z
  
 				TotalConnectedPoints += POINTS_PER_VERTEX;					// Add 3 to the total connected points
 			}

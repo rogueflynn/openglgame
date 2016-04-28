@@ -28,7 +28,8 @@ public:
 	Sound();
 	~Sound();
 	bool init(std::string filename, std::string shotFilename);
-	void playBackground();
+	void playOpening();
+	void stopOpening();
 	void playShot();
 	void stopShot();
 };

@@ -78,12 +78,14 @@ bool Sound::init(std::string filename,  std::string shotFilename)
 	return true;
 }
 
-void Sound::playBackground()
+void Sound::playOpening()
 {
 	//play
 	alSourcePlay(sources[0]);
 }
-
+void Sound::stopOpening() {
+	alSourceStop(sources[0]);	
+}
 void Sound::playShot()
 {
 	//play

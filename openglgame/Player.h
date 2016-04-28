@@ -22,6 +22,9 @@ private:
 public:
 	std::vector<Bullet*> bullets;
 	bool bulletFired;
+	float lifeBar;
+	int lives;
+	bool isAlive; 
 
 	~Player() {
 		std::cout << "Destructor called.\n";
@@ -37,6 +40,14 @@ public:
 		size = ((point.X * 10 * 2) + 1) * scale.X;
 		position.Set(0.0f, -3.5f,0.0f);
 		model.Load("models/ship.obj");
+		lifeBar = 2.0;
+		lives = 0;
+		isAlive = true;
+	}
+	void playerReset() {
+		position.Set(0.0f, -3.5f,0.0f);
+		lifeBar = 2.0;
+		model.Position(0.0f, -4.0, 0.0f);
 	}
 
 	/**********************************************
@@ -44,35 +55,51 @@ public:
 		to the screen.
 	************************************************/
 	void Draw() {
-		model.drawObject();
-		glPushMatrix();
-			glBindTexture(GL_TEXTURE_2D, textureBufferID);
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glColor3f(color.R, color.G, color.B);
-			glTranslatef(position.X, position.Y, position.Z);
-			glScalef(scale.X, scale.X, scale.Z);
-			glRotatef(rotation.Pitch,1.0f, 0.0f, 0.0f);			//X
-			glRotatef(rotation.Yaw,0.0f, 1.0f, 0.0f);			//Y
-			glRotatef(rotation.Roll,0.0f, 0.0f, 1.0f);			//Z
-			glBegin(GL_QUADS);
-					glVertex3f( point.X, point.Y, point.Z);    // Top Right Of The Quad (Front)
-					glVertex3f(-point.X, point.Y, point.Z);    // Top Left Of The Quad (Front)
-					glVertex3f(-point.X,-point.Y, point.Z);    // Bottom Left Of The Quad (Front)
-					glVertex3f( point.X,-point.Y, point.Z);    // Bottom Right Of The Quad (Front
-			glEnd();
-			glDisable(GL_TEXTURE_2D);
-		glPopMatrix();
+		if(isAlive) {
+			model.drawObject();
+			drawLifeBar();
+			glPushMatrix();
+				glBindTexture(GL_TEXTURE_2D, textureBufferID);
+				glEnable(GL_TEXTURE_2D);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glColor3f(color.R, color.G, color.B);
+				glTranslatef(position.X, position.Y, position.Z);
+				glScalef(scale.X, scale.X, scale.Z);
+				glRotatef(rotation.Pitch,1.0f, 0.0f, 0.0f);			//X
+				glRotatef(rotation.Yaw,0.0f, 1.0f, 0.0f);			//Y
+				glRotatef(rotation.Roll,0.0f, 0.0f, 1.0f);			//Z
+				glBegin(GL_QUADS);
+						glVertex3f( point.X, point.Y, point.Z);    // Top Right Of The Quad (Front)
+						glVertex3f(-point.X, point.Y, point.Z);    // Top Left Of The Quad (Front)
+						glVertex3f(-point.X,-point.Y, point.Z);    // Bottom Left Of The Quad (Front)
+						glVertex3f( point.X,-point.Y, point.Z);    // Bottom Right Of The Quad (Front
+				glEnd();
+				glDisable(GL_TEXTURE_2D);
+			glPopMatrix();
 
-		//Draw The bullets
-		for(unsigned int i = 0; i < bullets.size(); i++) {
-			if(bullets.size() == 1)
-				bullets[i]->Draw();
+			//Draw The bullets
+			for(unsigned int i = 0; i < bullets.size(); i++) {
+				if(bullets.size() == 1)
+					bullets[i]->Draw();
+			}
+				updateBullets();
 		}
-			updateBullets();
-
 	}
+
+void drawLifeBar() {
+	glPushMatrix();
+	glColor3f(1.0f, 0.0f,0.0f);
+	glTranslatef(-6.0f, 6.0, 1.0f);
+	glRotatef(10.5f, 1.0f, 0.0f, 0.0f);
+	glBegin(GL_QUADS);
+					glVertex3f(lifeBar, -1.5f, 0.0f);		// Top Right Of The Quad (Front)
+					glVertex3f(-2.0f, -1.5f, 0.0f);			// Top Left Of The Quad (Front)
+					glVertex3f(-2.0f,-2.0f, 0.0f);			// Bottom Left Of The Quad (Front)
+					glVertex3f(lifeBar,-2.0f, 0.0f);		// Bottom Right Of The Quad (Front)
+	glEnd();
+	glPopMatrix();
+}
 
 //This method instatiates a new bullet and adds
 //it to the vector. The max that the vector can hava
